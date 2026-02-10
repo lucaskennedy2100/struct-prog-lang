@@ -22,7 +22,7 @@ patterns = [
 
 patterns = [(re.compile(p), tag) for p, tag in patterns] #Patterns is assigned new values--turns from string and tag to compiled pattern and tag
 
-def tokenize(characters):
+def tokenize(characters): #characters is the passed in list of terms to tokenize
     "Tokenize a string using the patterns above"
     tokens = []
     position = 0
@@ -31,19 +31,19 @@ def tokenize(characters):
     current_tag = None
 
     while position < len(characters): #while we've not run out of characters
-        for pattern, tag in patterns:
+        for pattern, tag in patterns: #go through only the tags in patterns.
             match = pattern.match(characters, position)
             if match:
-                current_tag = tag
+                current_tag = tag 
                 break #if we encounter a regex, break
         assert match is not None
-        value = match.group(0)
+        value = match.group(0) #set value to the matched item.
 
-        if current_tag == "error":
+        if current_tag == "error": #if what we got equals nothing in the regex, it falls into . for everything.
             raise Exception(f"Unexpected character: {value!r}")
         
-        if tag != "whitespace":
-            token = {"tag": current_tag, "line": line, "column": column}
+        if tag != "whitespace": #we want to filter out anything that is blank, this appends our match to the list of tokens only if it isn't white
+            token = {"tag": current_tag, "line": line, "column": column} #set up tokens to be a list of touples with these labels
             if current_tag == "number":
                 token["value"] = int(value)
             tokens.append(token) #if we don't have whitespace, append the token to the end of our tokens list
