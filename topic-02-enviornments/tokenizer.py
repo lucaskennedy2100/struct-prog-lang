@@ -17,7 +17,6 @@ patterns = [
     (r"\*", "*"),
     (r"\(", "("),
     (r"\)", ")"),
-    (r"\%", "%"), #modulo
     (r".", "error") #only use everything if nothing else matches
 ]
 
@@ -71,21 +70,19 @@ def test_digits():
 
 def test_operators():
     print("test tokenize operators")
-    t = tokenize("( + - * / ) %")
+    t = tokenize("( + - * / )")
     tags = [tok["tag"] for tok in t]
-    assert tags == ["(", "+", "-", "*", "/", ")", "%", None] #modulo tests
+    assert tags == ["(", "+", "-", "*", "/", ")", None]
 
 def test_expressions():
     print("test tokenize expressions")
-    t = tokenize("1+222*3%1")
+    t = tokenize("1+222*3")
     assert t[0]["tag"] == "number" and t[0]["value"] == 1
     assert t[1]["tag"] == "+"
     assert t[2]["tag"] == "number" and t[2]["value"] == 222
     assert t[3]["tag"] == "*"
     assert t[4]["tag"] == "number" and t[4]["value"] == 3
-    assert t[5]["tag"] == "%"
-    assert t[6]["tag"] == "number" and t[6]["value"] == 1
-    assert t[7]["tag"] is None
+    assert t[5]["tag"] is None
 
 def test_whitespace():
     print("test tokenize whitespace")

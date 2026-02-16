@@ -1,4 +1,4 @@
-import parser, tokenizer
+import parser
 
 def evaluate(ast):
     if ast["tag"] == "number":
@@ -11,6 +11,8 @@ def evaluate(ast):
         return evaluate(ast["left"]) * evaluate(ast["right"])
     elif ast["tag"] == "/":
         return evaluate(ast["left"]) / evaluate(ast["right"])
+    elif ast["tag"] == "%":
+        return evaluate(ast["left"]) % evaluate(ast["right"])
     else:
         raise ValueError(f"Unknown AST node: {ast}")
 
@@ -34,10 +36,17 @@ def test_evaluate():
         "right": {"tag": "number", "value": 5},
     }
     assert evaluate(ast) == 35
-    tokens = tokenizer.tokenize("3*(4+5)")
-    ast, tokens = parser.parse_expression(tokens)
-    assert evaluate(ast) == 27
-
+    #modulo test
+    ast = {
+        "tag": "%",
+        "left": {
+            "tag": "+",
+            "left": {"tag": "number", "value": 6},
+            "right": {"tag": "number", "value": 3},
+        },
+        "right": {"tag": "number", "value": 2},
+    }
+    assert evaluate(ast) == 1    
 
 if __name__ == "__main__":
     test_evaluate()

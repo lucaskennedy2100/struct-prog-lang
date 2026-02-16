@@ -7,7 +7,7 @@ from pprint import pprint
 
 #   expression = term { ("+" | "-") term }
 #   term = factor { ("*" | "/") factor }
-#   factor = <number> | "(" expression ")"
+#   factor = <number>
 
 
 def parse_factor(tokens):
@@ -16,12 +16,7 @@ def parse_factor(tokens):
     if token["tag"] == "number":
         node = {"tag": "number", "value": token["value"]}
         return node, tokens[1:]
-    if token["tag"] == "(": #check for parentheses (this must happen here for pemdas)
-        node, tokens = parse_expression(tokens[1:]) #loop through
-        if tokens[0]["tag"] != ")":#if we did not encounter another end parentheses, error
-           raise SyntaxError(f"expected ')', got {tokens[0]}")
-        return node, tokens[1:]
-    assert False, f"Expected expression, got {tokens[0]}"
+    assert False, f"Expected number, got {token}"
 
 
 def test_parse_factor():
@@ -31,16 +26,12 @@ def test_parse_factor():
     ast, tokens = parse_factor(tokens)
     assert ast == {"tag": "number", "value": 3}
     assert tokens == [{"tag": None, "line": 1, "column": 2}]
-    tokens = tokenize("(3+4)")
-    ast, tokens = parse_factor(tokens)
-    assert ast == {'tag': '+', 'left': {'tag': 'number', 'value': 3}, 'right': {'tag': 'number', 'value': 4}} 
-    assert tokens == [{'tag': None, 'line': 1, 'column': 6}]
 
 
 def parse_term(tokens):
-    """term = factor { ("*" | "/") factor }"""
+    """term = factor { ("*" | "/" | "%) factor }""" #added modulo
     left, tokens = parse_factor(tokens)
-    while tokens[0]["tag"] in ["*", "/"]:
+    while tokens[0]["tag"] in ["*", "/", "%"]: #added modulo
         op = tokens[0]["tag"]
         right, tokens = parse_factor(tokens[1:])
         left = {"tag": op, "left": left, "right": right}
@@ -48,7 +39,7 @@ def parse_term(tokens):
 
 
 def test_parse_term():
-    """term = factor { ("*" | "/") factor }"""
+    """term = factor { ("*" | "/" | "%") factor }"""
     print("test parse_term()")
     tokens = tokenize("3")
     ast, tokens = parse_term(tokens)
@@ -82,7 +73,31 @@ def test_parse_term():
         "tag": "*",
     }
     assert tokens == [{"column": 6, "line": 1, "tag": None}]
-
+    #modulo tests
+    tokens = tokenize("9%2")
+    ast, tokens = parse_term(tokens)
+    assert ast == {
+        "left": {"tag": "number", "value": 9},
+        "right": {"tag": "number", "value": 2},
+        "tag": "%",
+    }
+    assert tokens == [{"column": 4, "line": 1, "tag": None}]
+    #complex modulo test
+    tokens = tokenize("3/4*5%2")
+    ast, tokens = parse_term(tokens)
+    assert ast == {
+    "left": {
+        "left": {
+            "left": {"tag": "number", "value": 3},
+            "right": {"tag": "number", "value": 4},
+            "tag": "/",
+        },
+        "right": {"tag": "number", "value": 5},
+        "tag": "*",
+    },
+    "right": {"tag": "number", "value": 2},
+    "tag": "%",
+}
 
 def parse_expression(tokens):
     """expression = term { ("+" | "-") term }"""
