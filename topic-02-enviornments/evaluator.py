@@ -1,16 +1,18 @@
 import parser, tokenizer
 
-def evaluate(ast):
+def evaluate(ast, enviornment):
     if ast["tag"] == "number":
         return ast["value"]
+    elif ast["tag"] == "identifier":
+        #theres stuff here
     elif ast["tag"] == "+":
-        return evaluate(ast["left"]) + evaluate(ast["right"])
+        return evaluate(ast["left"]) + evaluate(ast["right"], enviornment)
     elif ast["tag"] == "-":
-        return evaluate(ast["left"]) - evaluate(ast["right"])
+        return evaluate(ast["left"]) - evaluate(ast["right"], enviornment)
     elif ast["tag"] == "*":
-        return evaluate(ast["left"]) * evaluate(ast["right"])
+        return evaluate(ast["left"]) * evaluate(ast["right"], enviornment)
     elif ast["tag"] == "/":
-        return evaluate(ast["left"]) / evaluate(ast["right"])
+        return evaluate(ast["left"]) / evaluate(ast["right"], enviornment)
     else:
         raise ValueError(f"Unknown AST node: {ast}")
 
