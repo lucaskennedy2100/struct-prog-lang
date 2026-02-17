@@ -17,6 +17,7 @@ patterns = [
     (r"\*", "*"),
     (r"\(", "("),
     (r"\)", ")"),
+    (r"[a-zA-Z_][a-zA-Z0-9_]*", "identifier"),
     (r".", "error") #only use everything if nothing else matches
 ]
 
@@ -46,6 +47,8 @@ def tokenize(characters): #characters is the passed in list of terms to tokenize
             token = {"tag": current_tag, "line": line, "column": column} #set up tokens to be a list of touples with these labels
             if current_tag == "number":
                 token["value"] = int(value)
+            if current_tag == "identifier":
+                token["value"] = value
             tokens.append(token) #if we don't have whitespace, append the token to the end of our tokens list
         
         #now advance the position in the line
@@ -73,6 +76,14 @@ def test_operators():
     t = tokenize("( + - * / )")
     tags = [tok["tag"] for tok in t]
     assert tags == ["(", "+", "-", "*", "/", ")", None]
+
+def test_identifiers():
+    print("test tokenize identifiers")
+    t = tokenize("foo bar baz")
+    tags = [tok["tag"] for tok in t]
+    assert tags == ["identifier", "identifier", "identifier", None]
+    assert t[0]["value"] == "foo"
+    assert t[2]["value"] == "baz"
 
 def test_expressions():
     print("test tokenize expressions")
@@ -109,5 +120,6 @@ if __name__ == "__main__":
     test_operators()
     test_expressions()
     test_whitespace()
+    test_identifiers()
     test_error()
     print("done.")

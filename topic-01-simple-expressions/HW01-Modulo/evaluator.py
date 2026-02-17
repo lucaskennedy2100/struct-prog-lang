@@ -55,6 +55,16 @@ def test_evaluate():
         "right": {"tag": "number", "value": 2},
     }
     assert evaluate(ast) == -1 
+    ast = {
+        "tag": "%",
+        "left": {
+            "tag": "+",
+            "left": {"tag": "number", "value": -10},
+            "right": {"tag": "number", "value": 1},
+        },
+        "right": {"tag": "number", "value": 2},
+    }
+    assert evaluate(ast) == -1    
     
 if __name__ == "__main__":
     test_evaluate()

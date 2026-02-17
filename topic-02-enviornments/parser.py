@@ -11,17 +11,20 @@ from pprint import pprint
 
 
 def parse_factor(tokens):
-    """factor = <number>"""
+    # factor = <number> | <identifier> | "(" expression ")"
     token = tokens[0]
     if token["tag"] == "number":
         node = {"tag": "number", "value": token["value"]}
+        return node, tokens[1:]
+    if token["tag"] == "identifier":
+        node = {"tag": "identifier", "value": token["value"]}
         return node, tokens[1:]
     if token["tag"] == "(": #check for parentheses (this must happen here for pemdas)
         node, tokens = parse_expression(tokens[1:]) #loop through
         if tokens[0]["tag"] != ")":#if we did not encounter another end parentheses, error
            raise SyntaxError(f"expected ')', got {tokens[0]}")
         return node, tokens[1:]
-    assert False, f"Expected expression, got {tokens[0]}"
+    assert False, f"Expected factor, got {tokens[0]}"
 
 
 def test_parse_factor():
@@ -33,8 +36,16 @@ def test_parse_factor():
     assert tokens == [{"tag": None, "line": 1, "column": 2}]
     tokens = tokenize("(3+4)")
     ast, tokens = parse_factor(tokens)
-    assert ast == {'tag': '+', 'left': {'tag': 'number', 'value': 3}, 'right': {'tag': 'number', 'value': 4}} 
-    assert tokens == [{'tag': None, 'line': 1, 'column': 6}]
+    assert ast == {
+        "tag": "+",
+        "left": {"tag": "number", "value": 3},
+        "right": {"tag": "number", "value": 4},
+    }
+    assert tokens == [{"tag": None, "line": 1, "column": 6}]
+    tokens = tokenize("(x+4)")
+    ast, tokens = parse_factor(tokens)
+    assert ast == {'tag': '+', 'left': {'tag': 'identifier', 'value': 'x'}, 'right': {'tag': 'number', 'value': 4}}
+    assert tokens[0]["tag"] == None
 
 
 def parse_term(tokens):
