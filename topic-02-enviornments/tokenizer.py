@@ -17,7 +17,9 @@ patterns = [
     (r"\*", "*"),
     (r"\(", "("),
     (r"\)", ")"),
-    (r"[a-zA-Z_][a-zA-Z0-9_]*", "identifier"),
+    (r"\=", "="), #this must come after ==
+    (r"print\b", "print"), #(/b says to only include isolated terms--no printer print needs to be above the identifier, since its more specific
+    (r"[a-zA-Z_][\w]*", "identifier"),
     (r".", "error") #only use everything if nothing else matches
 ]
 
@@ -73,9 +75,9 @@ def test_digits():
 
 def test_operators():
     print("test tokenize operators")
-    t = tokenize("( + - * / )")
+    t = tokenize("( + - * / ) =")
     tags = [tok["tag"] for tok in t]
-    assert tags == ["(", "+", "-", "*", "/", ")", None]
+    assert tags == ["(", "+", "-", "*", "/", ")", "=", None]
 
 def test_identifiers():
     print("test tokenize identifiers")
